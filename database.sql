@@ -1,221 +1,519 @@
-DROP DATABASE food_now; 
+DROP DATABASE food_now;   
 
-CREATE DATABASE food_now; 
+  
 
- 
+   
 
-SELECT * FROM usuarios; 
+  
 
-SELECT * FROM tipoUsuario; 
+CREATE DATABASE food_now;   
 
-SELECT * FROM productos; 
+  
 
-SELECT * FROM pedidos; 
+   
 
-USE food_now; 
+  
 
--- tipoUsuario Vendedor Clientes 
+USE food_now;  
 
-CREATE TABLE tipoUsuario( 
+  
 
-idTipoUsuario INT AUTO_INCREMENT PRIMARY KEY,  
+   
 
-    tipoUsuario VARCHAR(45) 
+  
 
-); 
+-- tipoUsuario Vendedor Clientes  
 
- 
+  
 
--- usuarios 
+CREATE TABLE tipoUsuario(  
 
-CREATE TABLE usuarios ( 
+  
 
-    idUsuario INT AUTO_INCREMENT PRIMARY KEY,                 
+    idTipoUsuario INT AUTO_INCREMENT PRIMARY KEY,  
 
-    nombre VARCHAR(100), 
+  
 
-    correo VARCHAR(100), 
+    tipoUsuario VARCHAR(45)  
 
-    contrasenia VARCHAR(100), 
+  
 
-    disponibilidad BOOLEAN,                
+);  
 
-    foto LONGBLOB, 
+  
 
-    ubicacion TEXT, 
+   
 
-     
+  
 
-    idTipoUsuario INT,     
+-- usuarios  
 
-    FOREIGN KEY (idTipoUsuario) REFERENCES tipoUsuario(idTipoUsuario) ON DELETE CASCADE 
+  
 
-); 
+CREATE TABLE usuarios (  
 
- 
+  
 
--- categoriaProducto Comida Dulce Bebida Botana Postre 
+    idUsuario INT AUTO_INCREMENT PRIMARY KEY,  
 
-CREATE TABLE categoriaProducto( 
+  
 
-idcategoriaProducto INT AUTO_INCREMENT PRIMARY KEY,  
+    nombre VARCHAR(100),  
 
-    categoriaProducto VARCHAR(45) 
+  
 
-); 
+    correo VARCHAR(100),  
 
--- productos 
+  
 
-CREATE TABLE productos ( 
+    contrasenia VARCHAR(100),  
 
-    idProducto INT AUTO_INCREMENT PRIMARY KEY,                
+  
 
-    nombre VARCHAR(100), 
+    disponibilidad BOOLEAN,  
 
-    descripcion TEXT, 
+  
 
-    precio DECIMAL(10, 2), 
+    foto LONGBLOB,  
 
-    cantidadDisponible INT,                                     
+  
 
-    disponible BOOLEAN,             
+    ubicacion TEXT,  
 
-    foto LONGBLOB,      
+  
 
-     
+    idTipoUsuario INT,  
 
-    idcategoriaProducto INT,     
+  
 
-    FOREIGN KEY (idcategoriaProducto) REFERENCES categoriaProducto(idcategoriaProducto) ON DELETE CASCADE, 
+    FOREIGN KEY (idTipoUsuario) REFERENCES tipoUsuario(idTipoUsuario) ON DELETE CASCADE  
 
-    idVendedor INT,     
+  
 
-    FOREIGN KEY (idVendedor) REFERENCES usuarios(idUsuario) ON DELETE CASCADE 
+);  
 
-); 
+  
 
- 
+   
 
--- estadoPedido activo entregado cancelado 
+  
 
-CREATE TABLE estadoPedido( 
+-- categoriaProducto Comida Dulce Bebida Botana Postre  
 
-idEstadoPedido INT AUTO_INCREMENT PRIMARY KEY,  
+  
 
-    estadoPedido VARCHAR(45) 
+CREATE TABLE categoriaProducto(  
 
-); 
+  
 
- 
+    idcategoriaProducto INT AUTO_INCREMENT PRIMARY KEY,  
 
--- pedidos 
+  
 
-CREATE TABLE pedidos ( 
+    categoriaProducto VARCHAR(45)  
 
-    idPedido INT AUTO_INCREMENT PRIMARY KEY,                                        
+  
 
-    fechaPedido DATETIME NOT NULL, 
+);  
 
-     
+  
+
+   
+
+  
+
+-- productos  
+
+  
+
+CREATE TABLE productos (  
+
+  
+
+    idProducto INT AUTO_INCREMENT PRIMARY KEY,  
+
+  
+
+    nombre VARCHAR(100),  
+
+  
+
+    descripcion TEXT,  
+
+  
+
+    precio DECIMAL(10, 2),  
+
+  
+
+    cantidadDisponible INT,  
+
+  
+
+    disponible BOOLEAN,  
+
+  
+
+    foto LONGBLOB,  
+
+  
+
+    idcategoriaProducto INT,  
+
+  
+
+    FOREIGN KEY (idcategoriaProducto) REFERENCES categoriaProducto(idcategoriaProducto) ON DELETE CASCADE,  
+
+  
+
+    idVendedor INT,  
+
+  
+
+    FOREIGN KEY (idVendedor) REFERENCES usuarios(idUsuario) ON DELETE CASCADE  
+
+  
+
+);  
+
+  
+
+-- Crear trigger para actualizar disponibilidad  
+
+  
+
+DELIMITER $$  
+
+  
+
+  
+
+  
+
+CREATE TRIGGER actualizar_disponibilidad  
+
+  
+
+BEFORE UPDATE ON productos  
+
+  
+
+FOR EACH ROW  
+
+  
+
+BEGIN  
+
+  
+
+-- Verificar si la cantidadDisponible es 0  
+
+  
+
+IF NEW.cantidadDisponible = 0 THEN   
+
+  
+
+SET NEW.disponible = FALSE ;  
+
+  
+
+ELSE  
+
+  
+
+SET NEW.disponible = TRUE;  
+
+  
+
+END IF;   
+
+  
+
+END$$  
+
+  
+
+DELIMITER ;   
+
+  
+
+-- estadoPedido activo entregado cancelado  
+
+  
+
+CREATE TABLE estadoPedido(  
+
+  
+
+    idEstadoPedido INT AUTO_INCREMENT PRIMARY KEY,  
+
+  
+
+    estadoPedido VARCHAR(45)  
+
+  
+
+);  
+
+  
+
+   
+
+  
+
+-- pedidos  
+
+  
+
+CREATE TABLE pedidos (  
+
+  
+
+    idPedido INT AUTO_INCREMENT PRIMARY KEY,  
+
+  
+
+    fechaPedido DATETIME NOT NULL,  
+
+  
+
+    cantidad INT,  
+
+  
 
     idCliente INT,  
 
+  
+
     FOREIGN KEY (idCliente) REFERENCES usuarios(idUsuario) ON DELETE CASCADE,  
 
-    idProducto INT,           
+  
 
-    FOREIGN KEY (idProducto) REFERENCES productos(idProducto) ON DELETE CASCADE, 
+    idProducto INT,  
 
-    idEstadoPedido INT,           
+  
 
-    FOREIGN KEY (idEstadoPedido) REFERENCES estadoPedido(idEstadoPedido) ON DELETE CASCADE 
+    FOREIGN KEY (idProducto) REFERENCES productos(idProducto) ON DELETE CASCADE,  
 
-); 
+  
 
- 
+    idEstadoPedido INT,  
 
- 
+  
 
--- Insertar datos en tipoUsuario 
+    FOREIGN KEY (idEstadoPedido) REFERENCES estadoPedido(idEstadoPedido) ON DELETE CASCADE,  
 
-INSERT INTO tipoUsuario (tipoUsuario) 
+  
 
-VALUES  
+    idVendedor INT, -- Nueva columna idVendedor en la tabla pedidos  
 
-('Vendedor'), 
+  
 
-('Cliente'); 
+    FOREIGN KEY (idVendedor) REFERENCES usuarios(idUsuario) ON DELETE CASCADE -- Relación con la tabla usuarios  
 
- 
+  
 
--- Insertar datos en usuarios 
+);  
 
-INSERT INTO usuarios (nombre, correo, contrasenia, disponibilidad, foto, ubicacion, idTipoUsuario) 
+  
 
-VALUES  
+  
 
-('Juan Pérez', 'juan.perez@example.com', 'juan123', TRUE, NULL, 'Ubicacion A', 1), -- Vendedor 
+DELIMITER $$ 
 
-('María López', 'maria.lopez@example.com', 'maria123', TRUE, NULL, 'U B', 2); -- Cliente 
+  
 
- 
+CREATE TRIGGER actualizar_cantidad_producto_al_cancelar 
 
--- Insertar datos en categoriaProducto Comida Dulce Bebida Botana Postre 
+AFTER UPDATE ON pedidos 
 
-INSERT INTO categoriaProducto (categoriaProducto) 
+FOR EACH ROW 
 
-VALUES  
+BEGIN 
 
-('Comida'), 
+    -- Verificar si el estado del pedido cambió a "Cancelado" 
 
-('Dulce'), 
+    IF NEW.idEstadoPedido = (SELECT idEstadoPedido FROM estadoPedido WHERE estadoPedido = 'Cancelado') THEN 
 
-('Bebida'), 
+        -- Actualizar la cantidad disponible del producto correspondiente 
 
-('Botana'), 
+        UPDATE productos 
 
-('Postre'); 
+        SET cantidadDisponible = cantidadDisponible + OLD.cantidad 
 
- 
+        WHERE idProducto = OLD.idProducto; 
 
--- Insertar datos en productos 
+    END IF; 
 
-INSERT INTO productos (nombre, descripcion, precio, cantidadDisponible, disponible, foto, idcategoriaProducto, idVendedor) 
+END$$ 
 
-VALUES  
+  
 
-('Pizza Margarita', 'Pizza con queso y tomate', 150.00, 10, TRUE, NULL, 1, 1), -- Vendido por Juan Pérez 
+DELIMITER ; 
 
-('Refresco Cola', 'Refresco de cola de 500ml', 20.00, 50, TRUE, NULL, 3, 1),   -- Vendido por Juan Pérez 
+  
 
-('Pastel de Chocolate', 'Delicioso pastel de chocolate', 300.00, 5, TRUE, NULL, 5, 1); -- Vendido por Juan Pérez 
+  
 
- 
+-- Insertar datos en tipoUsuario  
 
--- Insertar datos en estadoPedido 
+  
 
-INSERT INTO estadoPedido (estadoPedido) 
+INSERT INTO tipoUsuario (tipoUsuario)  
 
-VALUES  
+  
 
-('Activo'), 
+VALUES    
 
-('Entregado'), 
+  
 
-('Cancelado'); 
+('Vendedor'),   
 
- 
+  
 
--- Insertar datos en pedidos 
+('Cliente');  
 
-INSERT INTO pedidos (fechaPedido, idCliente, idProducto) 
+  
 
-VALUES  
+   
 
-('2024-12-11 10:00:00', 2, 1), -- Pedido por María López, producto: Pizza Margarita 
+  
 
-('2024-12-11 12:00:00', 2, 2), -- Pedido por María López, producto: Refresco Cola 
+-- Insertar datos en usuarios  
 
-('2024-12-11 14:00:00', 2, 3); -- Pedido por María López, producto: Pastel de Chocolate 
+  
 
- 
+INSERT INTO usuarios (nombre, correo, contrasenia, disponibilidad, foto, ubicacion, idTipoUsuario)  
+
+  
+
+VALUES    
+
+  
+
+('Juan Pérez', 'juan.perez@example.com', 'juan123', TRUE, NULL, 'Ubicacion A', 1), -- Vendedor   
+
+  
+
+('María López', 'maria.lopez@example.com', 'maria123', TRUE, NULL, 'Ubicacion B', 2); -- Cliente  
+
+  
+
+   
+
+  
+
+-- Insertar datos en categoriaProducto Comida Dulce Bebida Botana Postre  
+
+  
+
+INSERT INTO categoriaProducto (categoriaProducto)  
+
+  
+
+VALUES    
+
+  
+
+('Comida'),   
+
+  
+
+('Dulce'),   
+
+  
+
+('Bebida'),   
+
+  
+
+('Botana'),   
+
+  
+
+('Postre');  
+
+  
+
+   
+
+  
+
+-- Insertar datos en productos  
+
+  
+
+INSERT INTO productos (nombre, descripcion, precio, cantidadDisponible, disponible, foto, idcategoriaProducto, idVendedor)  
+
+  
+
+VALUES    
+
+  
+
+('Pizza Margarita', 'Pizza con queso y tomate', 150.00, 10, TRUE, NULL, 1, 1), -- Vendido por Juan Pérez  
+
+  
+
+('Refresco Cola', 'Refresco de cola de 500ml', 20.00, 50, TRUE, NULL, 3, 1),   -- Vendido por Juan Pérez  
+
+  
+
+('Pastel de Chocolate', 'Delicioso pastel de chocolate', 300.00, 5, TRUE, NULL, 5, 1); -- Vendido por Juan Pérez  
+
+  
+
+   
+
+  
+
+-- Insertar datos en estadoPedido  
+
+  
+
+INSERT INTO estadoPedido (estadoPedido)  
+
+  
+
+VALUES    
+
+  
+
+('Activo'),   
+
+  
+
+('Entregado'),   
+
+  
+
+('Cancelado');  
+
+  
+
+   
+
+  
+
+-- Insertar datos en pedidos, ahora con idVendedor  
+
+  
+
+INSERT INTO pedidos (fechaPedido, cantidad, idCliente, idProducto, idVendedor, idEstadoPedido)  
+
+  
+
+VALUES    
+
+  
+
+('2024-12-11 10:00:00', 1,2, 1, 1, 1), -- Pedido por María López, producto: Pizza Margarita, Vendedor: Juan Pérez  
+
+  
+
+('2024-12-11 12:00:00',1 ,2, 2, 1, 1), -- Pedido por María López, producto: Refresco Cola, Vendedor: Juan Pérez  
+
+  
+
+('2024-12-11 14:00:00',1 ,2, 3, 1, 1); -- Pedido por María López, producto: Pastel de Chocolate, Vendedor: Juan Pérez 
