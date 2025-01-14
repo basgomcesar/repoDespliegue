@@ -1,11 +1,10 @@
-version: '3.8'
-
 services:
-  database:
-    image: mysql:8
+  mysql:
+    image: mysql:8.4
     container_name: mysql
     restart: always
     environment:
+      MYSQL_HOST: mysql
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: food_now
       MYSQL_USER: foodnowuser
@@ -14,34 +13,39 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+    healthcheck:
+      test: "exit 0"
 
   backend-rest:
-    image: basgomcesar/backend-foodnow:1.3 # Imagen ya creada
+    image: basgomcesar/backend-foodnow:1.4
     container_name: backend-rest
     restart: always
     environment:
-      DB_HOST: localhost
+      DB_HOST: mysql  # Cambiado de 'database' a 'mysql'
       DB_USER: foodnowuser
       DB_PASSWORD: foodnowcontrasenia
       DB_NAME: food_now
     ports:
       - "3000:3000"
     depends_on:
-      - database
+      mysql:
+        condition: service_healthy
 
   backend-grpc:
-    image: basgomcesar/backend-grpc:1.1 # Imagen ya creada
+    image: basgomcesar/backend-grpc:1.1
     container_name: backend-grpc
     restart: always
     environment:
-      DB_HOST: localhost
-      DB_USER: usefoodnowuserr
+      DB_HOST: mysql  # Cambiado de 'database' a 'mysql'
+      DB_USER: foodnowuser
       DB_PASSWORD: foodnowcontrasenia
       DB_NAME: food_now
     ports:
       - "50051:50051"
     depends_on:
-      - database
+      mysql:
+        condition: service_healthy
 
 volumes:
   db_data:
