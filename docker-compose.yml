@@ -9,6 +9,13 @@ services:
       MYSQL_DATABASE: food_now
       MYSQL_USER: foodnowuser
       MYSQL_PASSWORD: foodnowcontrasenia
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    command: [
+      '--lower_case_table_names=1',
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci'
+    ]
     ports:
       - "3306:3306"
     volumes:
@@ -22,10 +29,12 @@ services:
     container_name: backend-rest
     restart: always
     environment:
-      DB_HOST: mysql  # Cambiado de 'database' a 'mysql'
+      DB_HOST: mysql
       DB_USER: foodnowuser
       DB_PASSWORD: foodnowcontrasenia
       DB_NAME: food_now
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     ports:
       - "3000:3000"
     depends_on:
@@ -37,10 +46,12 @@ services:
     container_name: backend-grpc
     restart: always
     environment:
-      DB_HOST: mysql  # Cambiado de 'database' a 'mysql'
+      DB_HOST: mysql
       DB_USER: foodnowuser
       DB_PASSWORD: foodnowcontrasenia
       DB_NAME: food_now
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     ports:
       - "50051:50051"
     depends_on:
