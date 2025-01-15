@@ -22,7 +22,7 @@ CREATE TABLE usuarios (
 );
 
 -- Tabla categoriaProducto (Comida, Dulce, Bebida, Botana, Postre)
-CREATE TABLE categoriaproducto (
+CREATE TABLE categoriaProducto (
     idcategoriaProducto INT AUTO_INCREMENT PRIMARY KEY,
     categoriaProducto VARCHAR(45)
 );
@@ -37,7 +37,7 @@ CREATE TABLE productos (
     disponible BOOLEAN,
     foto LONGBLOB,
     idcategoriaProducto INT,
-    FOREIGN KEY (idcategoriaProducto) REFERENCES categoriaproducto(idcategoriaProducto) ON DELETE CASCADE,
+    FOREIGN KEY (idcategoriaProducto) REFERENCES categoriaProducto(idcategoriaProducto) ON DELETE CASCADE,
     idVendedor INT,
     FOREIGN KEY (idVendedor) REFERENCES usuarios(idUsuario) ON DELETE CASCADE
 );
@@ -57,7 +57,7 @@ END$$
 DELIMITER ;
 
 -- Tabla estadoPedido (Activo, Entregado, Cancelado)
-CREATE TABLE estadopedido (
+CREATE TABLE estadoPedido (
     idEstadoPedido INT AUTO_INCREMENT PRIMARY KEY,
     estadoPedido VARCHAR(45)
 );
@@ -72,7 +72,7 @@ CREATE TABLE pedidos (
     idProducto INT,
     FOREIGN KEY (idProducto) REFERENCES productos(idProducto) ON DELETE CASCADE,
     idEstadoPedido INT,
-    FOREIGN KEY (idEstadoPedido) REFERENCES estadopedido(idEstadoPedido) ON DELETE CASCADE,
+    FOREIGN KEY (idEstadoPedido) REFERENCES estadoPedido(idEstadoPedido) ON DELETE CASCADE,
     idVendedor INT,
     FOREIGN KEY (idVendedor) REFERENCES usuarios(idUsuario) ON DELETE CASCADE
 );
@@ -83,7 +83,7 @@ CREATE TRIGGER actualizar_cantidad_producto_al_cancelar
 AFTER UPDATE ON pedidos
 FOR EACH ROW
 BEGIN
-    IF NEW.idEstadoPedido = (SELECT idEstadoPedido FROM estadopedido WHERE estadoPedido = 'Cancelado') THEN
+    IF NEW.idEstadoPedido = (SELECT idEstadoPedido FROM estadoPedido WHERE estadoPedido = 'Cancelado') THEN
         UPDATE productos
         SET cantidadDisponible = cantidadDisponible + OLD.cantidad
         WHERE idProducto = OLD.idProducto;
@@ -100,7 +100,7 @@ INSERT INTO usuarios (nombre, correo, contrasenia, disponibilidad, foto, ubicaci
 ('María López', 'maria.lopez@example.com', 'maria123', TRUE, NULL, 'Ubicacion B', 2);
 
 -- Insertar datos en categoriaProducto
-INSERT INTO categoriaproducto (categoriaproducto) VALUES ('Comida'), ('Dulce'), ('Bebida'), ('Botana'), ('Postre');
+INSERT INTO categoriaProducto (categoriaProducto) VALUES ('Comida'), ('Dulce'), ('Bebida'), ('Botana'), ('Postre');
 
 -- Insertar datos en productos
 INSERT INTO productos (nombre, descripcion, precio, cantidadDisponible, disponible, foto, idcategoriaProducto, idVendedor) VALUES
@@ -109,7 +109,7 @@ INSERT INTO productos (nombre, descripcion, precio, cantidadDisponible, disponib
 ('Pastel de Chocolate', 'Delicioso pastel de chocolate', 300.00, 5, TRUE, NULL, 5, 1);
 
 -- Insertar datos en estadoPedido
-INSERT INTO estadopedido (estadopedido) VALUES ('Activo'), ('Entregado'), ('Cancelado');
+INSERT INTO estadoPedido (estadoPedido) VALUES ('Activo'), ('Entregado'), ('Cancelado');
 
 -- Insertar datos en pedidos
 INSERT INTO pedidos (fechaPedido, cantidad, idCliente, idProducto, idVendedor, idEstadoPedido) VALUES
